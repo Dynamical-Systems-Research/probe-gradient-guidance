@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
-"""Patch script: applies best-of-K support to pc_sampler.py on the spark."""
+"""Patch script: applies best-of-K support to MatterGen's pc_sampler.py."""
+import os
 
-SAMPLER_PATH = "/home/jarrodbarnes/mattergen/mattergen/diffusion/sampling/pc_sampler.py"
+SAMPLER_PATH = os.environ.get(
+    "MATTERGEN_SAMPLER",
+    str(Path.home() / "mattergen/mattergen/diffusion/sampling/pc_sampler.py"),
+)
 
 with open(SAMPLER_PATH) as f:
     content = f.read()

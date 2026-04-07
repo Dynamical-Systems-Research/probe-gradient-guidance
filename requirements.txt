@@ -1,0 +1,8 @@
+torch>=2.0
+numpy
+pandas
+scikit-learn
+pymatgen
+tqdm
+fastapi
+uvicorn

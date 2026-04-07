@@ -19,7 +19,7 @@ import time
 from dataclasses import dataclass
 from pathlib import Path
 
-MATTERGEN_ROOT = Path("/home/jarrodbarnes/mattergen")
+MATTERGEN_ROOT = Path(os.environ.get("MATTERGEN_ROOT", Path.home() / "mattergen"))
 RESULTS_ROOT = MATTERGEN_ROOT / "results"
 REFERENCE_DATASET = MATTERGEN_ROOT / "data-release/alex-mp/reference_TRI2024correction.gz"
 PROBE_CHECKPOINT = RESULTS_ROOT / "self_correction/window_probe_v2.pt"

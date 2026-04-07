@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Pipeline: 100K training on balanced Alex-MP-20 subset -> probes -> Pareto sweep
-# Runs on spark-cfd0. ~2.5 hours total.
+# ~2.5 hours on a single GB10 GPU.
 set -euo pipefail
 cd ~/crystalite
 export PYTHONUNBUFFERED=1

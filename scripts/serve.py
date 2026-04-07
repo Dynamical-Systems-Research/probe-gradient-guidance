@@ -1,12 +1,11 @@
 """Crystalite persistent generation server.
 
-Thin HTTP wrapper around existing generation scripts on spark-cfd0.
 Loads the balanced 100K model once, delegates to guided_sampler,
 masked_decode, decode_structures, and score_bandgap.
 
-Deploy on spark-cfd0:
-    cd ~/crystalite
-    .venv/bin/python scripts/serve.py --port 8100
+Deploy:
+    cd <crystalite_root>
+    python scripts/serve.py --port 8100
 """
 
 from __future__ import annotations
