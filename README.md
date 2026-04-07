@@ -116,14 +116,33 @@ python scripts/serve.py \
 
 ## MatterGen reproduction (optional)
 
-The `mattergen_repro/` directory reproduces Goodfire's self-correcting search on MatterGen. This requires a separate setup:
+The `mattergen_repro/` directory reproduces Goodfire's self-correcting search on MatterGen. This is independent of the Crystalite pipeline. Pre-computed results are in `results/mattergen/`.
 
-1. Clone and install [MatterGen](https://github.com/microsoft/mattergen) following their instructions (Docker-based)
-2. Download the band-gap conditional checkpoint from their release
-3. Set the environment variable: `export MATTERGEN_ROOT=/path/to/mattergen`
-4. Run: `python mattergen_repro/frontier_v2.py` (v2 SC sweep) or `frontier_v3.py` (v3 best-of-3)
+To run it yourself:
 
-The MatterGen reproduction is independent of the Crystalite pipeline. Our pre-computed results are in `results/mattergen/`.
+```bash
+# 1. Install MatterGen (requires Python 3.10, Git LFS)
+git lfs install
+git clone https://github.com/microsoft/mattergen.git
+cd mattergen
+pip install uv && uv venv .venv --python 3.10 && source .venv/bin/activate
+uv pip install -e .
+
+# 2. Pull the band-gap checkpoint and reference dataset
+git lfs pull -I checkpoints/dft_band_gap --exclude=""
+git lfs pull -I data-release/alex-mp/reference_TRI2024correction.gz --exclude=""
+
+# 3. Apply the best-of-K sampler patch (for v3 SC)
+cd /path/to/probe-gradient-guidance
+export MATTERGEN_ROOT=/path/to/mattergen
+python mattergen_repro/sampler_patch.py
+
+# 4. Run the frontier sweep
+python mattergen_repro/frontier_v2.py   # v2 SC (single proposal)
+python mattergen_repro/frontier_v3.py   # v3 SC (best-of-3 + hard floor)
+```
+
+Requires a CUDA GPU. Generation runs inside Docker (`mattergen-canonical:py310`). Evaluation uses MatGL and MatterSim installed in the MatterGen venv.
 
 ## Repo structure
 
