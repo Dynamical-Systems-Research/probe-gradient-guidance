@@ -6,3 +6,4 @@ pymatgen
 tqdm
 fastapi
 uvicorn
+chgnet

@@ -21,7 +21,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from src.crystalite.crystalite import CrystaliteModel, mod1
 from src.crystalite.edm_utils import karras_sigma_steps, denoise_edm, sigma_to_cnoise
 from src.crystalite.sampler import wrap_frac, clamp_lattice_latent
-from scripts.self_correction import BandGapProbe
+from scripts.metropolis import BandGapProbe
 
 
 def compute_probe_guidance(

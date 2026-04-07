@@ -113,7 +113,7 @@ def _build_pad_mask(n_atoms: torch.Tensor, nmax: int) -> torch.Tensor:
 
 def _load_models(model_ckpt: str, fe_probe_ckpt: str, bg_probe_ckpt: str | None, device: str) -> None:
     from models.type_encoding import build_type_encoding
-    from self_correction import BandGapProbe
+    from metropolis import BandGapProbe
     from train_probe import load_model
 
     logger.info("Loading model: %s", model_ckpt)
@@ -241,10 +241,10 @@ def _passes_structural_validity_filter(
 def _generate_candidates(req: GenerateRequest) -> GenerateResponse:
     import time as _time
 
-    from guided_sampler import guided_edm_sampler
-    from hybrid_constrained import masked_decode, score_bandgap
+    from generate import guided_edm_sampler
+    from constrained import masked_decode, score_bandgap
     from pymatgen.core import Element
-    from run_sweep import decode_structures
+    from sweep import decode_structures
 
     model = _state["model"]
     fe_probe = _state["fe_probe"]

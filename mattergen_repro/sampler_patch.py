@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Patch script: applies best-of-K support to MatterGen's pc_sampler.py."""
 import os
+from pathlib import Path
 
 SAMPLER_PATH = os.environ.get(
     "MATTERGEN_SAMPLER",

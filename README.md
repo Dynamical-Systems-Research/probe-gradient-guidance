@@ -21,25 +21,32 @@ On [Crystalite](https://arxiv.org/abs/2604.02270) (67.8M-parameter Diffusion Tra
 
 **Balanced model** (32K subset, 35% insulators): 42.6% in-window, 100% lattice validity, 99.6% geometry validity. Formation energy probe AUROC: 0.990.
 
+## Setup
+
+```bash
+git clone https://github.com/Dynamical-Systems-Research/probe-gradient-guidance.git
+cd probe-gradient-guidance
+pip install -r requirements.txt
+```
+
+Requires the [Crystalite](https://arxiv.org/abs/2604.02270) codebase installed at the repo root as `src/`. See the Crystalite paper for architecture details and training code.
+
 ## Quick start
 
 ```bash
 # Train a probe on model hidden states
-python scripts/train_probe.py --checkpoint outputs/dng_alex_mp20/checkpoints/final.pt
+python scripts/train_probe.py \
+    --model_checkpoint outputs/dng_alex_mp20/checkpoints/final.pt \
+    --output_path probes/bandgap_10k.pt
 
-# Generate with probe-gradient guidance
-python scripts/generate.py --checkpoint outputs/dng_alex_mp20/checkpoints/final.pt \
-    --probe probes/bandgap_10k.pt --guidance_weight 10
-
-# Sweep guidance weights
-python scripts/sweep.py --checkpoint outputs/dng_alex_mp20/checkpoints/final.pt \
-    --probe probes/bandgap_10k.pt --weights 0 1 3 5 10 15
-
-# Multi-constraint generation (gradient + token masking)
-python scripts/constrained.py --checkpoint outputs/dng_balanced_100k/checkpoints/final.pt \
-    --probe probes/bandgap_balanced.pt --guidance_weight 10 \
-    --exclude Co Ni --boost Re Zr Ta Hf W V
+# Full Pareto sweep (18K structures, 6 weights, 3 seeds)
+python scripts/pareto.py \
+    --model_checkpoint outputs/dng_alex_mp20/checkpoints/final.pt \
+    --probe_path probes/bandgap_10k.pt \
+    --output_dir results/pareto_sweep
 ```
+
+`scripts/sweep.py`, `scripts/constrained.py`, and `scripts/generate.py` are research scripts with hardcoded paths at the top of each file. Edit the path constants before running. `scripts/serve.py` is a FastAPI server with full argparse.
 
 ## Trained probes
 
@@ -57,7 +64,7 @@ Crystalite checkpoints (519MB each) are hosted on HuggingFace:
 - [`Dynamical-Systems/crystalite-10k-alex-mp20`](https://huggingface.co/Dynamical-Systems/crystalite-10k-alex-mp20) (diversity-optimized)
 - [`Dynamical-Systems/crystalite-balanced-100k`](https://huggingface.co/Dynamical-Systems/crystalite-balanced-100k) (production, 42.6% in-window)
 
-Requires the [Crystalite](https://arxiv.org/abs/2604.02270) codebase (Hadzi Veljkovic et al.) for model architecture.
+Requires the [Crystalite](https://arxiv.org/abs/2604.02270) codebase at `src/` for model architecture.
 
 ## Repo structure
 

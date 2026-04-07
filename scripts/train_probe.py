@@ -32,7 +32,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from src.crystalite.crystalite import CrystaliteModel
 from src.data.mp20_tokens import MP20Tokens
 from src.models.type_encoding import build_type_encoding
-from scripts.self_correction import BandGapProbe, extract_atom_mean
+from scripts.metropolis import BandGapProbe, extract_atom_mean
 
 
 def load_model(ckpt_path: str, device: str = "cuda") -> CrystaliteModel:

@@ -28,9 +28,9 @@ from pymatgen.core.periodic_table import Element
 
 from src.crystalite.sampler import edm_sampler
 from src.models.type_encoding import build_type_encoding
-from scripts.self_correction import BandGapProbe, extract_atom_mean
+from scripts.metropolis import BandGapProbe, extract_atom_mean
 from scripts.train_probe import load_model
-from scripts.guided_sampler import guided_edm_sampler
+from scripts.generate import guided_edm_sampler
 
 
 

@@ -22,14 +22,14 @@ import torch.nn as nn
 from sklearn.metrics import roc_auc_score, mean_absolute_error
 from torch.utils.data import DataLoader, TensorDataset
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent  # assumes crystalite/ is the project root
+PROJECT_ROOT = Path(__file__).resolve().parent.parent  # repo root (probe-gradient-guidance/)
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from scripts.self_correction import BandGapProbe, extract_atom_mean
+from scripts.metropolis import BandGapProbe, extract_atom_mean
 from scripts.train_probe import load_model
 from src.data.mp20_tokens import MP20Tokens
 from src.models.type_encoding import build_type_encoding
-from scripts.guided_sampler import guided_edm_sampler
+from scripts.generate import guided_edm_sampler
 
 
 device = "cuda"

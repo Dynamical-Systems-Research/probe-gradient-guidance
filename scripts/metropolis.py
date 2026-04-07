@@ -8,7 +8,7 @@ Crystalite's standard Transformer architecture. Key simplifications:
   - Same Metropolis energy function and accept/reject logic
 
 Usage:
-  from scripts.self_correction import BandGapScorer, edm_sampler_with_sc
+  from scripts.metropolis import BandGapScorer, edm_sampler_with_sc
 """
 from __future__ import annotations
 
