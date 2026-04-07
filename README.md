@@ -23,32 +23,56 @@ On [Crystalite](https://arxiv.org/abs/2604.02270) (67.8M-parameter Diffusion Tra
 
 ## Setup
 
+**Hardware**: Single GPU with 16+ GB VRAM (tested on NVIDIA GB10). CPU-only works for probe training and evaluation but not generation.
+
+### 1. Clone and install
+
 ```bash
 git clone https://github.com/Dynamical-Systems-Research/probe-gradient-guidance.git
 cd probe-gradient-guidance
 pip install -r requirements.txt
 ```
 
-Requires the [Crystalite](https://arxiv.org/abs/2604.02270) codebase installed at the repo root as `src/`. See the Crystalite paper for architecture details and training code.
+### 2. Install Crystalite
 
-## Quick start
+The scripts import from Crystalite's source tree. Clone it into the repo root:
 
 ```bash
-# Train a probe on model hidden states
-python scripts/train_probe.py \
-    --model_checkpoint outputs/dng_alex_mp20/checkpoints/final.pt \
-    --output_path probes/bandgap_10k.pt
-
-# Full Pareto sweep (18K structures, 6 weights, 3 seeds)
-python scripts/pareto.py \
-    --model_checkpoint outputs/dng_alex_mp20/checkpoints/final.pt \
-    --probe_path probes/bandgap_10k.pt \
-    --output_dir results/pareto_sweep
+git clone https://github.com/joshrosie/crystalite.git src
 ```
 
-`scripts/sweep.py`, `scripts/constrained.py`, and `scripts/generate.py` are research scripts with hardcoded paths at the top of each file. Edit the path constants before running. `scripts/serve.py` is a FastAPI server with full argparse.
+This places the Crystalite codebase at `src/`, which matches the import paths used throughout (e.g., `from src.crystalite.crystalite import CrystaliteModel`).
 
-## Trained probes
+### 3. Download training data
+
+Crystalite provides a download script for Alex-MP-20 (the dataset used in all experiments):
+
+```bash
+python src/data/download_datasets.py --datasets alex_mp20 --out data
+```
+
+This downloads from HuggingFace (`jbungle/crystalite-datasets`).
+
+### 4. Download model checkpoints
+
+Crystalite checkpoints (519MB each) are hosted on HuggingFace. Download and place them in the expected directory structure:
+
+```bash
+mkdir -p outputs/dng_alex_mp20/checkpoints
+mkdir -p outputs/dng_balanced_100k/checkpoints
+
+# 10K model (diversity-optimized, used for Pareto sweep)
+huggingface-cli download Dynamical-Systems/crystalite-10k-alex-mp20 \
+    --local-dir outputs/dng_alex_mp20/checkpoints
+
+# Balanced model (production, 42.6% in-window)
+huggingface-cli download Dynamical-Systems/crystalite-balanced-100k \
+    --local-dir outputs/dng_balanced_100k/checkpoints
+```
+
+### 5. Pre-trained probes (included)
+
+Trained probes are included in `probes/`. You can skip probe training and go directly to generation.
 
 | Probe | Model | Property | AUROC |
 |---|---|---|---|
@@ -57,36 +81,68 @@ python scripts/pareto.py \
 | `probes/formation_energy_balanced.pt` | Crystalite balanced | Formation energy | 0.990 |
 | `probes/bandgap_mattergen.pt` | MatterGen | Band gap | 0.972 |
 
-## Model checkpoints
+## Usage
 
-Crystalite checkpoints (519MB each) are hosted on HuggingFace:
+### Train a new probe
 
-- [`Dynamical-Systems/crystalite-10k-alex-mp20`](https://huggingface.co/Dynamical-Systems/crystalite-10k-alex-mp20) (diversity-optimized)
-- [`Dynamical-Systems/crystalite-balanced-100k`](https://huggingface.co/Dynamical-Systems/crystalite-balanced-100k) (production, 42.6% in-window)
+```bash
+python scripts/train_probe.py \
+    --model_checkpoint outputs/dng_alex_mp20/checkpoints/final.pt \
+    --output_path probes/my_probe.pt
+```
 
-Requires the [Crystalite](https://arxiv.org/abs/2604.02270) codebase at `src/` for model architecture.
+### Run the Pareto sweep (reproduces the main result)
+
+```bash
+python scripts/pareto.py \
+    --model_checkpoint outputs/dng_alex_mp20/checkpoints/final.pt \
+    --probe_path probes/bandgap_10k.pt \
+    --output_dir results/pareto_sweep
+```
+
+### Research scripts
+
+`scripts/sweep.py`, `scripts/constrained.py`, and `scripts/generate.py` have hardcoded paths at the top of each file. Edit the path constants before running. These are the scripts used for the blog post experiments.
+
+### Production server
+
+```bash
+python scripts/serve.py \
+    --model-ckpt outputs/dng_balanced_100k/checkpoints/final.pt \
+    --fe-probe probes/formation_energy_balanced.pt \
+    --bg-probe probes/bandgap_balanced.pt \
+    --port 8100
+```
+
+## MatterGen reproduction (optional)
+
+The `mattergen_repro/` directory reproduces Goodfire's self-correcting search on MatterGen. This requires a separate setup:
+
+1. Clone and install [MatterGen](https://github.com/microsoft/mattergen) following their instructions (Docker-based)
+2. Download the band-gap conditional checkpoint from their release
+3. Set the environment variable: `export MATTERGEN_ROOT=/path/to/mattergen`
+4. Run: `python mattergen_repro/frontier_v2.py` (v2 SC sweep) or `frontier_v3.py` (v3 best-of-3)
+
+The MatterGen reproduction is independent of the Crystalite pipeline. Our pre-computed results are in `results/mattergen/`.
 
 ## Repo structure
 
 ```
 scripts/
-  generate.py          Probe-gradient guidance sampler
+  generate.py          Probe-gradient guidance sampler (core method)
   train_probe.py       Probe training
   sweep.py             Guidance weight sweep
   pareto.py            18K structure Pareto sweep (6 weights x 3 seeds x 1024)
   constrained.py       Multi-constraint: gradient steering + token masking
   metropolis.py        Metropolis accept/reject baseline
   evaluate.py          Probe + CHGNet evaluation pipeline
+  decode.py            Structure decoding utilities
   serve.py             FastAPI generation server
   train_balanced.sh    Balanced training configuration
 
-mattergen_repro/
-  frontier_v2.py       MatterGen SC reproduction (Goodfire, v2)
-  frontier_v3.py       MatterGen SC reproduction (v3, best-of-3)
-  sampler_patch.py     MatterGen sampler patch
-
-probes/                Trained probe checkpoints
-results/               Reproducibility data (Pareto sweep, MatterGen frontier)
+mattergen_repro/       Goodfire SC reproduction (requires separate MatterGen setup)
+probes/                Trained probe checkpoints (included)
+results/               Pre-computed results for reproducibility
 ```
 
 ## References

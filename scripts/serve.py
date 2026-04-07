@@ -244,7 +244,7 @@ def _generate_candidates(req: GenerateRequest) -> GenerateResponse:
     from generate import guided_edm_sampler
     from constrained import masked_decode, score_bandgap
     from pymatgen.core import Element
-    from sweep import decode_structures
+    from decode import decode_structures
 
     model = _state["model"]
     fe_probe = _state["fe_probe"]
