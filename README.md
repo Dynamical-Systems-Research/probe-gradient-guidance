@@ -62,11 +62,11 @@ mkdir -p outputs/dng_alex_mp20/checkpoints
 mkdir -p outputs/dng_balanced_100k/checkpoints
 
 # 10K model (diversity-optimized, used for Pareto sweep)
-huggingface-cli download Dynamical-Systems/crystalite-10k-alex-mp20 \
+huggingface-cli download Dynamical-Systems/crystalite-base \
     --local-dir outputs/dng_alex_mp20/checkpoints
 
 # Balanced model (production, 42.6% in-window)
-huggingface-cli download Dynamical-Systems/crystalite-balanced-100k \
+huggingface-cli download Dynamical-Systems/crystalite-balanced \
     --local-dir outputs/dng_balanced_100k/checkpoints
 ```
 
